@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="com.sky.mapper.DishMapper">
+
+
+<!--    批量插入数据，动态SQL-->
+<!--    设置主键返回， keyProperty="id"  dish.id-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into dish
+        (status, name, category_id, price, image, description, create_time, update_time, create_user,update_user) VALUES
+        (#{status}, #{name}, #{categoryId}, #{price}, #{image}, #{description}, #{createTime}, #{updateTime},#{createUser}, #{updateUser})
+    </insert>
+
+    <!--    resultType：单条数据分装的结果-->
+<!--    select d.*, c.name as categoryName from dish d left join category c on d.category_id = c.id;
+-->
+<!--     由于两张表中有两个相同name字段，所以需要将category中的name起别名为categoryName，才能封装到DishVO中-->
+    <select id="pageQuery" resultType="com.sky.vo.DishVO">
+        select d.*, c.name categoryName  from dish d left join category c on d.category_id = c.id
+        <where>
+            <if test="name !=null">d.name like concat('%',#{name},'%')</if>
+            <if test="categoryId != null">and d.category_id = #{categoryId} </if>
+            <if test="status != null"> and d.status = #{status}</if>
+        </where>
+        order by create_time desc
+    </select>
+<!--    根据条件更新菜品数据-->
+    <update id="update">
+        update dish
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">updateTime = #{updateTime},</if>
+            <if test="updateUser != null">updateUser = #{updateUser},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>
